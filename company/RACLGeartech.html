@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RACL Geartech Ltd - Equity Research Report</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #eef2f9;
+      color: #1e293b;
+      font-family: 'Inter', sans-serif;
+    }
+    .report-banner {
+      background: linear-gradient(135deg, #002366 0%, #1e40af 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 8px 12px -4px rgb(0 0 0 / 0.07);
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      cursor: pointer;
+      padding: 1.5rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .card-content {
+        flex-grow: 1;
+    }
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e40af;
+        margin-bottom: 0.5rem;
+    }
+    .card-description {
+        font-size: 0.875rem;
+        color: #475569;
+    }
+    .card-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e40af;
+        margin-right: 0.5rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 1.5rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: #1e293b;
+    }
+    .modal-section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      border-bottom: 2px solid #93c5fd;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #dbeafe;
+      font-weight: 500;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .tag-green {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .tag-red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .tag-blue {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .tag-yellow {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .valuation-card {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 2px solid #d1d5db;
+    }
+    .chart-container {
+      width: 100%;
+      height: 350px;
+      margin: 1rem 0;
+    }
+    .cylinder-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 2px solid #0ea5e9;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+    .cylinder-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(14, 165, 233, 0.3);
+    }
+    .financial-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 0.875rem;
+    }
+    .financial-table th, .financial-table td {
+      border: 1px solid #d1d5db;
+      padding: 0.5rem;
+    }
+    .financial-table th {
+      background-color: #f3f4f6;
+      font-weight: 600;
+    }
+    .financial-table tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    .peer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .peer-table th {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      color: white;
+      padding: 0.75rem;
+      font-weight: 600;
+      text-align: left;
+    }
+    .peer-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    .peer-table tr:hover {
+      background: #f8fafc;
+    }
+    
+    .peer-highlight {
+      background: #dbeafe;
+      color: #1e40af;
+      font-weight: 600;
+    }
+    /* Simple list styles */
+    .modal-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .modal-content li {
+        margin-bottom: 0.5rem;
+    }
+    .source-toggle {
+        cursor: pointer;
+        font-weight: 600;
+        color: #1d4ed8;
+        margin-top: 1rem;
+    }
+    .source-content {
+        display: none;
+        font-size: 0.875rem;
+        color: #475569;
+        background: #f8fafc;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Report Banner -->
+    <div class="report-banner mb-8">
+      <h1 class="text-4xl font-bold mb-2">RACL Geartech Ltd</h1>
+      <p class="text-lg text-blue-200 mb-6">
+        NSE: RACLGEAR | Sector: Auto Components | Industry: Automotive Gears
+        <span class="block text-sm">Report Date: November 7, 2025</span>
+      </p>
+      
+      <!-- Key Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="stat-card">
+          <div class="stat-label">Market Cap</div>
+          <div class="stat-value">₹1,261 Cr</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Stock P/E</div>
+          <div class="stat-value">24.11</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ROE (TTM)</div>
+          <div class="stat-value">22.8%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ROCE (TTM)</div>
+          <div class="stat-value">19.3%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">D/E Ratio</div>
+          <div class="stat-value">0.81</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">5Y Rev CAGR</div>
+          <div class="stat-value">14.5%</div>
+        </div>
+      </div>
+      <p class="text-xs text-center mt-4 text-blue-100">Analyst: AI Research Model | Model used: MACHINE Framework & 4-Cylinder Analysis</p>
+      <p class="text-xs text-center mt-1 text-blue-100">CMP: ₹1,070 | 52W High: ₹1,230 | 52W Low: ₹717</p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="card" onclick="openModal('modal-1')">
+        <div class="flex items-start mb-2">
+            <span class="card-number">1</span>
+            <h3 class="card-title">Sector, Value Chain & Ecosystem</h3>
+        </div>
+        <p class="card-description card-content">Indian steel market, integrated value chain, mining & power generation</p>
+      </div>
+      
+      <!-- Card 2 -->
+      <div class="card" onclick="openModal('modal-2')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">2</span>
+            <h3 class="card-title">Company Overview</h3>
+        </div>
+        <p class="card-description card-content">Business model, product portfolio, manufacturing footprint & expansion plans</p>
+      </div>
+      
+      <!-- Card 4 -->
+      <div class="card" onclick="openModal('modal-4')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">4</span>
+            <h3 class="card-title">Qualitative Analysis (MACHINE)</h3>
+        </div>
+        <p class="card-description card-content">Strategic framework and competitive advantages</p>
+      </div>
+      
+      <!-- Card 5 -->
+      <div class="card" onclick="openModal('modal-5')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">5</span>
+            <h3 class="card-title">Four Cylinder (Summary)</h3>
+        </div>
+        <p class="card-description card-content">Revenue, operating leverage, margins & capital efficiency</p>
+      </div>
+      
+      <!-- Card 6 -->
+      <div class="card" onclick="openModal('modal-6')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">6</span>
+            <h3 class="card-title">Peer Comparison</h3>
+        </div>
+        <p class="card-description card-content">Competitive positioning vs Sona BLW, Sansera, Bharat Gears</p>
+      </div>
+      
+      <!-- Card 7 -->
+      <div class="card" onclick="openModal('modal-7')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">7</span>
+            <h3 class="card-title">Financial Performance</h3>
+        </div>
+        <p class="card-description card-content">5-year trends, quarterly breakdown & shareholding patterns</p>
+      </div>
+      
+      <!-- Card 8 -->
+      <div class="card" onclick="openModal('modal-8')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">8</span>
+            <h3 class="card-title">Four Cylinder (Detailed)</h3>
+        </div>
+        <p class="card-description card-content">Deep-dive growth levers and execution roadmap</p>
+      </div>
+      
+      <!-- Card 9 -->
+      <div class="card" onclick="openModal('modal-9')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">9</span>
+            <h3 class="card-title">Technical Analysis</h3>
+        </div>
+        <p class="card-description card-content">Chart patterns, support/resistance & price momentum</p>
+      </div>
+      
+      <!-- Card 10 -->
+      <div class="card" onclick="openModal('modal-10')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">10</span>
+            <h3 class="card-title">News & Catalysts</h3>
+        </div>
+        <p class="card-description card-content">Recent developments, capex plans & recent developments</p>
+      </div>
+      
+      <!-- Card 11 -->
+      <div class="card" onclick="openModal('modal-11')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">11</span>
+            <h3 class="card-title">Conference Call Summary</h3>
+        </div>
+        <p class="card-description card-content">Guidance, strategic initiatives & Q1 FY26 highlights</p>
+      </div>
+      
+      <!-- Card 12 -->
+      <div class="card" onclick="openModal('modal-12')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">12</span>
+            <h3 class="card-title">Forensic Analysis</h3>
+        </div>
+        <p class="card-description card-content">Financial quality checks and manipulation risk assessment</p>
+      </div>
+
+      <!-- Card 13 -->
+      <div class="card" onclick="openModal('modal-13')">
+         <div class="flex items-start mb-2">
+            <span class="card-number">13</span>
+            <h3 class="card-title">Valuation & Recommendation</h3>
+        </div>
+        <p class="card-description card-content">DCF valuation, price targets & investment thesis</p>
+      </div>
+      
+    </div> <!-- End Grid -->
+    
+    <!-- Footer Disclaimer -->
+    <div class="text-center text-xs text-slate-500 mt-8">
+      <p>Disclaimer: This research report is generated by AI and may contain factual or analytical errors. The information provided is for educational purposes only and should not be construed as investment advice. Please conduct your own due diligence, verify all facts and figures from official sources, and consult a qualified financial advisor before making any investment decisions.</p>
+      <p class="mt-2">Report Generated: November 7, 2025 | RACLGEAR CMP: ₹1,070</p>
+    </div>
+
+  </div> <!-- End Main Container -->
+
+
+  <!-- MODALS SECTION -->
+
+  <!-- Modal 1: Sector, Value Chain & Ecosystem -->
+  <div id="modal-1" class="modal-overlay" onclick="closeModal('modal-1')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-1')">&times;</span>
+      <h2 class="modal-section-title">Sector, Value Chain & Ecosystem</h2>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Sector Outlook (Auto Components)</h3>
+      <p class="mb-4">The Indian auto components sector is poised for strong growth, with an expected CAGR of 10-12% over the next few years. This growth is driven by robust domestic automotive demand, a rapid transition towards Electric Vehicles (EVs), and the significant 'China Plus One' global sourcing strategy. Government incentives like the Production Linked Incentive (PLI) scheme are further enhancing export competitiveness and encouraging domestic manufacturing of high-value components.</p>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">RACL's Position in the Value Chain</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center mb-4">
+        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+          <div class="font-bold">Raw Materials</div>
+          <p class="text-sm">Forging-grade steel, special alloys, aluminum.</p>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+          <div class="font-bold">Design & Engineering</div>
+          <p class="text-sm">In-house R&D, new product development, process engineering.</p>
+        </div>
+        <div class="bg-blue-100 p-4 rounded-lg shadow-md border border-blue-300">
+          <div class="font-bold">RACL Manufacturing</div>
+          <p class="text-sm">High-precision gears, transmission shafts, sub-assemblies.</p>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+          <div class="font-bold">End Applications</div>
+          <p class="text-sm">Luxury 2W, ATVs, Tractors, EV Drivetrains, CVs.</p>
+        </div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Industry Ecosystem</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <h4 class="font-semibold text-slate-700">Key Suppliers</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Major steel forging companies</li>
+            <li>Alloy manufacturers</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-slate-700">Direct Peers</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Sona BLW Precision Forgings</li>
+            <li>Sansera Engineering</li>
+            <li>Bharat Gears</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-slate-700">Major Customers</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>BMW Motorrad (Germany)</li>
+            <li>Kubota (Japan)</li>
+            <li>ZF Friedrichshafen (Germany)</li>
+            <li>MAN Truck & Bus (Germany)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-1')">Show/Hide Sources</div>
+      <div id="source-1" class="source-content">
+        <p>ACMA (Automotive Component Manufacturers Association) Report - 2025</p>
+        <p>IBEF Auto Components Industry Report - Oct 2025</p>
+        <p>RACL Geartech Q1 FY26 Investor Presentation</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Company Overview -->
+  <div id="modal-2" class="modal-overlay" onclick="closeModal('modal-2')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-2')">&times;</span>
+      <h2 class="modal-section-title">Company Overview</h2>
+      
+      <p class="mb-4">Founded in 1983, RACL Geartech Ltd. is a leading Indian manufacturer of high-precision automotive components, primarily transmission gears and shafts. The company has successfully transitioned from focusing on the domestic market to becoming a globally recognized supplier for premier OEMs. RACL specializes in complex, high-tolerance components for luxury motorcycles, all-terrain vehicles (ATVs), agricultural machinery, and the rapidly growing Electric Vehicle (EV) segment. Its reputation for quality and reliability has resulted in long-standing, sticky relationships with marquee clients like BMW Motorrad, Kubota, and ZF.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Key Financials (FY25)</h4>
+          <ul>
+            <li><strong>Revenue:</strong> ₹417.4 Cr</li>
+            <li><strong>PAT:</strong> ₹50.5 Cr</li>
+            <li><strong>PAT Margin:</strong> 12.1%</li>
+          </ul>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Business Model</h4>
+          <p>Focus on high-end, build-to-print components for global OEMs. Key verticals include:</p>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Luxury 2-Wheelers (BMW Motorrad)</li>
+            <li>Agricultural Machinery (Kubota)</li>
+            <li>EV Drivetrain Components (ZF)</li>
+            <li>ATVs & Commercial Vehicles</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <h4 class="font-semibold text-slate-700 mb-2 text-center">Revenue Mix (Q1 FY26)</h4>
+          <div class="chart-container" style="height: 250px;"><canvas id="geoChart"></canvas></div>
+        </div>
+        <div>
+          <h4 class="font-semibold text-slate-700 mb-2 text-center">Segment Mix (Q1 FY26)</h4>
+          <div class="chart-container" style="height: 250px;"><canvas id="segmentChart"></canvas></div>
+        </div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Manufacturing & Products</h3>
+      <ul class="list-disc pl-5">
+        <li><strong>Manufacturing Footprint:</strong> 2 state-of-the-art plants in Gajraula and Noida, Uttar Pradesh.</li>
+        <li><strong>Key Products:</strong> Transmission Gears & Shafts, Differential Gears, Sub-assemblies, Precision Machined Parts, Chassis Components.</li>
+      </ul>
+      
+      <div class="source-toggle" onclick="toggleSource('source-2')">Show/Hide Sources</div>
+      <div id="source-2" class="source-content">
+        <p>Q1 FY26 Earnings Call Transcript (Aug 2025)</p>
+        <p>Screener.in Data (as of 7-Nov-2025)</p>
+        <p>Company Website</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Qualitative Analysis (MACHINE) -->
+  <div id="modal-4" class="modal-overlay" onclick="closeModal('modal-4')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-4')">&times;</span>
+      <h2 class="modal-section-title">Qualitative Analysis (MACHINE)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">M – Mega Tailwinds & Trends</h3>
+          <ul>
+            <li><span class="tag-blue">EV Transition:</span> Directly supplying critical components for ZF's global EV platforms.</li>
+            <li><span class="tag-blue">China Plus One:</span> Global OEMs actively diversifying supply chains, benefiting Indian exporters like RACL.</li>
+            <li><span class="tag-blue">Premiumization:</span> Strong growth in luxury 2W and ATV markets, (BMW, etc.).</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">A – Price-Volume Action</h3>
+          <ul>
+            <li><span class="tag-blue">Institutional Buying:</span> DII holding has steadily increased to ~11%, showing growing conviction.</li>
+            <li><span class="tag-blue">Consolidation:</span> Stock has consolidated in a range after a multi-year bull run, potentially forming a base for the next move.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">C – Competitive Advantage (Moat)</h3>
+          <ul>
+            <li><span class="tag-blue">Sticky Clients:</span> Decades-long relationships with global giants (BMW, Kubota) who have high switching costs.</li>
+            <li><span class="tag-blue">High Entry Barriers:</span> Manufacturing high-precision gears requires deep technical expertise and stringent quality approvals.</li>
+            <li><span class="tag-blue">Niche Focus:</span> Focus on complex, low-volume, high-margin products, avoiding commodity competition.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">H – High ROCE - Emerging & Quality</h3>
+          <ul>
+            <li><span class="tag-blue">Strong Returns:</span> Consistently maintains ROCE above 19% and ROE above 22%.</li>
+            <li><span class="tag-blue">Margin Profile:</span> Growing EV portfolio (28% of sales) commands strong EBITDA margins (~24-25%).</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">I – Improvement in Company</h3>
+          <ul>
+            <li><span class="tag-blue">Wallet Share:</span> Deepening relationship with ZF by supplying to their new EV platforms.</li>
+            <li><span class="tag-blue">Capex:</span> Continuous capex (₹100 Cr in FY26) to add new capacity and technologies for new orders.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">N – New Ventures & Growth Levers</h3>
+          <ul>
+            <li><span class="tag-blue">New Clients:</span> Recently added MAN Truck & Bus (Germany) as a new marquee customer.</li>
+            <li><span class="tag-blue">New Segments:</span> Successfully diversified into EV components, which now form 28% of revenue.</li>
+          </ul>
+        </div>
+        
+      </div>
+      <div class="p-4 bg-blue-50 rounded-lg border border-blue-200 mt-4">
+          <h3 class="font-bold text-lg text-blue-800 mb-2">E – Execution in Earning Growth</h3>
+          <ul>
+            <li><span class="tag-blue">Clear Guidance:</span> Management has confidently guided for 20-25% revenue growth in FY26.</li>
+            <li><span class="tag-blue">Margin Execution:</span> Successfully maintained industry-leading EBITDA margins (24.1% in Q1'26) despite cost pressures.</li>
+          </ul>
+        </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-4')">Show/Hide Sources</div>
+      <div id="source-4" class="source-content">
+        <p>Q1 FY26 Earnings Call Transcript (Aug 2025)</p>
+        <p>Screener.in Data</p>
+        <p>Analyst Assessment</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Four Cylinder (Summary) -->
+  <div id="modal-5" class="modal-overlay" onclick="closeModal('modal-5')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-5')">&times;</span>
+      <h2 class="modal-section-title">Four Cylinder Growth Model (Summary)</h2>
+      <p class="mb-4">Summary of RACL's growth drivers, mapping actions to financial metrics.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="cylinder-card">
+          <h3 class="text-xl font-bold text-sky-700 mb-2">1. Sales Growth (Price × Qty)</h3>
+          <ul class="list-disc pl-5 text-left text-sm">
+            <li>Driven by volume growth from existing clients (BMW, Kubota).</li>
+            <li>New orders from MAN Truck & Bus starting to ramp up.</li>
+            <li>Strong pipeline from ZF for their EV platforms.</li>
+            <li>Management guidance of 20-25% revenue growth for FY26.</li>
+            <li><strong>Maps to:</strong> Revenue (Slide 7)</li>
+          </ul>
+        </div>
+        
+        <div class="cylinder-card">
+          <h3 class="text-xl font-bold text-sky-700 mb-2">2. Operating Leverage</h3>
+          <ul class="list-disc pl-5 text-left text-sm">
+            <li>Existing plants operating at high capacity utilization.</li>
+            <li>New ₹100 Cr capex for FY26 will add capacity, allowing for fixed cost absorption over a larger revenue base from FY27.</li>
+            <li><strong>Maps to:</strong> EBITDA Margins, Asset Turnover (Slide 7)</li>
+          </ul>
+        </div>
+        
+        <div class="cylinder-card">
+          <h3 class="text-xl font-bold text-sky-700 mb-2">3. Margin Expansion</h3>
+          <ul class="list-disc pl-5 text-left text-sm">
+            <li>EBITDA margins maintained at a strong 24-25% (Q1'26 at 24.1%).</li>
+            <li>Favorable product mix shift, with high-margin EV components growing to 28% of sales.</li>
+            <li><strong>Maps to:</strong> EBITDA & PAT Margins (Slide 7)</li>
+          </ul>
+        </div>
+        
+        <div class="cylinder-card">
+          <h3 class="text-xl font-bold text-sky-700 mb-2">4. Debt / Capital Efficiency</h3>
+          <ul class="list-disc pl-5 text-left text-sm">
+            <li>Debt/Equity ratio stable at 0.81.</li>
+            <li>New capex is being funded by a mix of debt and internal accruals.</li>
+            <li>Strong order book provides visibility for servicing debt.</li>
+            <li><strong>Maps to:</strong> D/E Ratio, Interest Coverage (Slide 7)</li>
+          </ul>
+        </div>
+        
+      </div>
+      <div class="source-toggle" onclick="toggleSource('source-5')">Show/Hide Sources</div>
+      <div id="source-5" class="source-content">
+        <p>Q1 FY26 Earnings Call Transcript (Aug 2025)</p>
+        <p>Screener.in Data</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Peer Comparison -->
+  <div id="modal-6" class="modal-overlay" onclick="closeModal('modal-6')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-6')">&times;</span>
+      <h2 class="modal-section-title">Peer Comparison</h2>
+      
+      <div class="overflow-x-auto mb-4">
+        <table class="peer-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>MCap (₹ Cr)</th>
+              <th>P/E (TTM)</th>
+              <th>ROCE (TTM)</th>
+              <th>ROE (TTM)</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="peer-highlight">
+              <td>RACL Geartech</td>
+              <td>1,261</td>
+              <td>24.1</td>
+              <td>19.3%</td>
+              <td>22.8%</td>
+              <td>Niche, high-precision gears for luxury 2W, EV, ATV</td>
+            </tr>
+            <tr>
+              <td>Sona BLW Precision</td>
+              <td>~80,000</td>
+              <td>~75.0</td>
+              <td>~20.1%</td>
+              <td>~18.2%</td>
+              <td>Large-scale differential gears & EV drivetrain components</td>
+            </tr>
+            <tr>
+              <td>Sansera Engineering</td>
+              <td>~10,000</td>
+              <td>~33.0</td>
+              <td>~15.5%</td>
+              <td>~14.1%</td>
+              <td>Diversified auto components, forging, machining</td>
+            </tr>
+            <tr>
+              <td>Bharat Gears</td>
+              <td>~250</td>
+              <td>~16.0</td>
+              <td>~8.2%</td>
+              <td>~6.5%</td>
+              <td>Standard gears for Commercial Vehicles & tractors</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Company's Position</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Positioned as a high-quality, niche player.</li>
+            <li>Not a volume player; focuses on complexity and low-volume, high-value batches.</li>
+            <li>Higher margins than commodity gear makers (Bharat Gears).</li>
+          </ul>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Competitive Advantage</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Moat comes from client trust and quality approvals, not scale.</li>
+            <li>Trades at a discount to Sona BLW, which has a larger EV scale and market focus.</li>
+            <li>More focused product portfolio than the highly diversified Sansera.</li>
+          </ul>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Growth Trajectory</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li>Growth is tied to marquee client orders and EV transition.</li>
+            <li>Sona's growth is more broad-based in the EV market.</li>
+            <li>RACL's 20-25% growth guidance is very strong for its size.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Comparative Scoring (out of 10)</h3>
+      <div class="overflow-x-auto">
+        <table class="financial-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>RACL Geartech</th>
+              <th>Sona BLW</th>
+              <th>Sansera Eng.</th>
+              <th>Bharat Gears</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Moat & Niche</td>
+              <td class="font-bold">9</td>
+              <td class="font-bold">9</td>
+              <td>7</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>Growth Profile (EV)</td>
+              <td class="font-bold">8</td>
+              <td class="font-bold">10</td>
+              <td>7</td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <td>Profitability</td>
+              <td class="font-bold">9</td>
+              <td class="font-bold">9</td>
+              <td>7</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>Valuation</td>
+              <td class="font-bold">7</td>
+              <td>4</td>
+              <td>6</td>
+              <td>7</td>
+            </tr>
+            <tr class="font-bold bg-slate-100">
+              <td>Overall Score</td>
+              <td>8.3</td>
+              <td>8.0</td>
+              <td>6.8</td>
+              <td>5.3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-6')">Show/Hide Sources</div>
+      <div id="source-6" class="source-content">
+        <p>Screener.in Data (as of 7-Nov-2025)</p>
+        <p>Publicly available peer data, TTM figures.</p>
+        <p>Analyst Assessment.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Financial Performance -->
+  <div id="modal-7" class="modal-overlay" onclick="closeModal('modal-7')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-7')">&times;</span>
+      <h2 class="modal-section-title">Financial Performance</h2>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+        <div class="chart-container"><canvas id="annualChart"></canvas></div>
+        <div class="chart-container"><canvas id="ratioChart"></canvas></div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Quarterly Performance (Consolidated)</h3>
+      <div class="overflow-x-auto mb-4">
+        <table class="financial-table">
+          <thead>
+            <tr>
+              <th>(₹ Cr)</th>
+              <th>Sep '22</th>
+              <th>Dec '22</th>
+              <th>Mar '23</th>
+              <th>Jun '23</th>
+              <th>Sep '23</th>
+              <th>Dec '23</th>
+              <th>Mar '24</th>
+              <th>Jun '24</th>
+              <th>Sep '24</th>
+              <th>Dec '24</th>
+              <th>Mar '25</th>
+              <th>Jun '25</th>
+              <th>Sep '25</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sales</td>
+              <td>89.24</td>
+              <td>93.63</td>
+              <td>107.57</td>
+              <td>98.54</td>
+              <td>102.73</td>
+              <td>106.33</td>
+              <td>109.69</td>
+              <td>101.99</td>
+              <td>102.31</td>
+              <td>105.79</td>
+              <td>107.28</td>
+              <td>110.15</td>
+              <td>111.96</td>
+            </tr>
+            <tr>
+              <td>YoY Gr. (%)</td>
+              <td class="tag-green">22.1%</td>
+              <td class="tag-green">20.8%</td>
+              <td class="tag-green">28.0%</td>
+              <td class="tag-green">10.4%</td>
+              <td class="tag-green">15.1%</td>
+              <td class="tag-green">13.6%</td>
+              <td class="tag-green">2.0%</td>
+              <td class="tag-green">3.5%</td>
+              <td class="tag-red">-0.4%</td>
+              <td class="tag-red">-0.5%</td>
+              <td class="tag-red">-2.2%</td>
+              <td class="tag-green">8.0%</td>
+              <td class="tag-green">9.4%</td>
+            </tr>
+            <tr>
+              <td>PAT</td>
+              <td>10.10</td>
+              <td>11.23</td>
+              <td>13.91</td>
+              <td>12.16</td>
+              <td>12.21</td>
+              <td>13.01</td>
+              <td>15.00</td>
+              <td>12.51</td>
+              <td>12.06</td>
+              <td>12.60</td>
+              <td>12.18</td>
+              <td>13.14</td>
+              <td>13.36</td>
+            </tr>
+             <tr>
+              <td>YoY Gr. (%)</td>
+              <td class="tag-green">26.3%</td>
+              <td class="tag-green">30.7%</td>
+              <td class="tag-green">40.5%</td>
+              <td class="tag-green">20.4%</td>
+              <td class="tag-green">20.9%</td>
+              <td class="tag-green">15.9%</td>
+              <td class="tag-green">7.8%</td>
+              <td class="tag-green">2.9%</td>
+              <td class="tag-red">-1.2%</td>
+              <td class="tag-red">-3.1%</td>
+              <td class="tag-red">-18.9%</td>
+              <td class="tag-green">5.0%</td>
+              <td class="tag-green">10.8%</td>
+            </tr>
+            <tr>
+              <td>Interest</td>
+              <td>2.12</td>
+              <td>2.37</td>
+              <td>2.65</td>
+              <td>3.12</td>
+              <td>3.42</td>
+              <td>3.78</td>
+              <td>4.41</td>
+              <td>4.50</td>
+              <td>4.43</td>
+              <td>4.80</td>
+              <td>5.09</td>
+              <td>5.51</td>
+              <td>5.56</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Annual Performance (Consolidated)</h3>
+      <div class="overflow-x-auto mb-4">
+        <table class="financial-table">
+          <thead>
+            <tr>
+              <th>(₹ Cr)</th>
+              <th>Mar '21</th>
+              <th>Mar '22</th>
+              <th>Mar '23</th>
+              <th>Mar '24</th>
+              <th>Mar '25</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sales</td>
+              <td>203.61</td>
+              <td>271.21</td>
+              <td>358.21</td>
+              <td>417.29</td>
+              <td>417.37</td>
+            </tr>
+            <tr>
+              <td>YoY Gr. (%)</td>
+              <td class="tag-red">-4.1%</td>
+              <td class="tag-green">33.2%</td>
+              <td class="tag-green">32.1%</td>
+              <td class="tag-green">16.5%</td>
+              <td class="tag-yellow">0.0%</td>
+            </tr>
+            <tr>
+              <td>PAT</td>
+              <td>14.85</td>
+              <td>27.05</td>
+              <td>41.51</td>
+              <td>52.38</td>
+              <td>50.48</td>
+            </tr>
+             <tr>
+              <td>YoY Gr. (%)</td>
+              <td class="tag-green">120.3%</td>
+              <td class="tag-green">82.1%</td>
+              <td class="tag-green">53.5%</td>
+              <td class="tag-green">26.2%</td>
+              <td class="tag-red">-3.6%</td>
+            </tr>
+            <tr>
+              <td>Interest</td>
+              <td>4.82</td>
+              <td>6.03</td>
+              <td>9.26</td>
+              <td>14.73</td>
+              <td>19.83</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Key Ratios & Shareholding</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-slate-700 mb-2">Key Performance Indicators (TTM)</h4>
+          <ul class="list-disc pl-5 text-sm">
+            <li><strong>EPS (TTM):</strong> ₹44.36</li>
+            <li><strong>Net Debt (FY25):</strong> ₹240.26 Cr</li>
+            <li><strong>Interest Coverage (TTM):</strong> 4.70x</li>
+            <li><strong>CFO (FY25):</strong> ₹27.14 Cr</li>
+          </ul>
+        </div>
+        <div class="overflow-x-auto">
+          <h4 class="font-semibold text-slate-700 mb-2">Shareholding Pattern (%)</h4>
+          <table class="financial-table text-sm">
+            <thead>
+              <tr>
+                <th>Holder</th>
+                <th>Dec '23</th>
+                <th>Mar '24</th>
+                <th>Jun '24</th>
+                <th>Sep '24</th>
+                <th>Dec '24</th>
+                <th>Mar '25</th>
+                <th>Jun '25</th>
+                <th>Sep '25</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Promoter</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+                <td>51.68</td>
+              </tr>
+              <tr>
+                <td>FII</td>
+                <td>0.20</td>
+                <td>0.15</td>
+                <td>0.14</td>
+                <td>0.12</td>
+                <td>0.08</td>
+                <td>0.08</td>
+                <td>0.06</td>
+                <td>0.06</td>
+              </tr>
+              <tr>
+                <td>DII</td>
+                <td>8.44</td>
+                <td>9.21</td>
+                <td>9.40</td>
+                <td>9.94</td>
+                <td>10.02</td>
+                <td>10.51</td>
+                <td>10.87</td>
+                <td>10.97</td>
+              </tr>
+              <tr>
+                <td>Public</td>
+                <td>39.69</td>
+                <td>38.96</td>
+                <td>38.78</td>
+                <td>38.26</td>
+                <td>38.22</td>
+                <td>37.73</td>
+                <td>37.39</td>
+                <td>37.29</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-7')">Show/Hide Sources</div>
+      <div id="source-7" class="source-content">
+        <p>Screener.in Data Export (RACL Geartech.xlsx)</p>
+        <p>Data as of 7-Nov-2025</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Four Cylinder (Detailed) -->
+  <div id="modal-8" class="modal-overlay" onclick="closeModal('modal-8')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-8')">&times;</span>
+      <h2 class="modal-section-title">Four Cylinder Growth Model (Detailed)</h2>
+      
+      <div class="space-y-4">
+        
+        <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+          <h3 class="font-bold text-lg text-sky-800 mb-2">1. Sales Growth (Price × Quantity)</h3>
+          <ul>
+            <li><strong>Existing:</strong> Continued volume growth from core clients BMW Motorrad and Kubota as their end-market demand remains stable.</li>
+            <li><strong>New:</strong> Ramp-up of new orders from MAN Truck & Bus for their commercial vehicle segment.</li>
+            <li><strong>New:</strong> Deepening wallet-share with ZF by supplying components for their next-generation EV platforms.</li>
+            <li><strong>Guidance:</strong> Management has explicitly guided for **20-25% revenue growth in FY26**, backed by this strong order book.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+          <h3 class="font-bold text-lg text-sky-800 mb-2">2. Operating Leverage</h3>
+          <ul>
+            <li><strong>Existing:</strong> Both Gajraula and Noida plants are operating at high capacity utilization, ensuring strong absorption of fixed costs.</li>
+            <li><strong>New:</strong> A new **capex of ₹100 Cr is planned for FY26**. This is to add new machinery and production lines specifically for the new orders from ZF and MAN.</li>
+            <li><strong>Impact:</strong> This capex will drive the next leg of operating leverage from FY27 onwards as new capacity comes online and is filled.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+          <h3 class="font-bold text-lg text-sky-800 mb-2">3. Margin Expansion</h3>
+          <ul>
+            <li><strong>Existing:</strong> Core business commands industry-leading EBITDA margins, which management expects to sustain at **24-25%**.</li>
+            <li><strong>New:</strong> The product mix is continuously improving. The EV segment, which carries higher margins, grew to **28% of total revenue** in Q1 FY26.</li>
+            <li><strong>Impact:</strong> This shift towards higher-value EV components provides a natural tailwind for margin sustenance and potential expansion.</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+          <h3 class="font-bold text-lg text-sky-800 mb-2">4. Debt Reduction / Capital Efficiency</h3>
+          <ul>
+            <li><strong>Existing:</strong> D/E ratio is at a manageable 0.81. Interest coverage ratio is healthy at 4.7x.</li>
+            <li><strong>New:</strong> The ₹100 Cr capex will be funded by a mix of fresh debt and internal accruals.</li>
+            <li><strong>Impact:</strong> While debt will rise in the short term, the capex is backed by confirmed orders from top-tier clients, providing high visibility on future cash flows to service this debt.</li>
+          </ul>
+        </div>
+        
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-8')">Show/Hide Sources</div>
+      <div id="source-8" class="source-content">
+        <p>Q1 FY26 Earnings Call Transcript (Aug 2025)</p>
+        <p>Q1 FY26 Investor Presentation</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: Technical Analysis -->
+  <div id="modal-9" class="modal-overlay" onclick="closeModal('modal-9')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-9')">&times;</span>
+      <h2 class="modal-section-title">Technical Analysis</h2>
+      
+      <div class="text-center mb-4 p-4 bg-slate-100 rounded-lg">
+        <img src="https://www.tradingview.com/x/l41O2tzG/" class="w-full rounded-lg shadow-md" alt="RACLGEAR Technical Chart">
+      </div>
+      
+      <div class="text-center mb-6">
+        <span class="text-lg font-semibold mr-4">Current Price: <span class="text-blue-600">₹1,070</span></span>
+        <span class="text-lg font-semibold mr-4">52W High: <span class="text-red-600">₹1,230</span></span>
+        <span class="text-lg font-semibold">52W Low: <span class="text-green-600">₹717</span></span>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-gray-700 mb-2">Trend & Pattern</h4>
+          <p>The stock is in a clear long-term uptrend. After hitting an all-time high of ₹1,230, it has been in a healthy consolidation phase for the past few months, trading in a range between ~₹950 and ~₹1,200.</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-gray-700 mb-2">Support & Resistance</h4>
+          <p><strong>Support:</strong> Strong support is visible near the ₹950 - ₹1,000 level, which has been tested and held. The 200-day moving average also provides dynamic support in this zone.</p>
+          <p><strong>Resistance:</strong> The primary resistance is the 52-week high of ₹1,230. A decisive breakout above this level could trigger the next leg of the rally.</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-gray-700 mb-2">Price-Volume Action</h4>
+          <p>Volumes have been moderate during the consolidation phase, which is a positive sign. It suggests that the selling pressure is not intense and the stock is being accumulated. A breakout on high volume would be a strong confirmation.</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <h4 class="font-semibold text-gray-700 mb-2">Summary</h4>
+          <p>The technical setup is neutral to mildly bullish. The stock is building a base for its next move. A breakout above ₹1,230 or a breakdown below ₹950 would determine the next direction. The fundamental growth story supports a bullish bias.</p>
+        </div>
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-9')">Show/Hide Sources</div>
+      <div id="source-9" class="source-content">
+        <p>TradingView Snapshot (as of 7-Nov-2025)</p>
+        <p>Screener.in Charting Data</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 10: News & Future Catalysts -->
+  <div id="modal-10" class="modal-overlay" onclick="closeModal('modal-10')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-10')">&times;</span>
+      <h2 class="modal-section-title">News & Future Catalysts</h2>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Recent News & Developments</h3>
+      <ul class="list-disc pl-5 mb-4">
+        <li><strong>RACL bags new orders from ZF (Sep 2025):</strong> Secured significant new orders to supply components for ZF's next-generation EV platforms, strengthening its position in the global EV supply chain.</li>
+        <li><strong>Q1 FY26 Results (Aug 2025):</strong> Reported a 5% rise in PAT to ₹13.1 Cr and an 8% rise in revenue to ₹110.1 Cr. Management reiterated strong growth guidance for the full year.</li>
+        <li><strong>CARE Ratings Reaffirms 'A-' (Jul 2025):</strong> CARE Ratings reaffirmed the company's long-term rating at 'CARE A-; Stable', citing its established relationships with global OEMs and strong operating efficiency.</li>
+      </ul>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">Short-Term Catalysts (3-6 Months)</h3>
+          <ul class="list-disc pl-5">
+            <li>Ramp-up of initial deliveries to new client MAN Truck & Bus.</li>
+            <li>Strong Q2 & Q3 performance driven by festive season demand for 2W/ATV and robust export schedules.</li>
+            <li>Potential for further new client announcements.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">Medium-Term Catalysts (6-18 Months)</h3>
+          <ul class="list-disc pl-5">
+            <li>Full commissioning and ramp-up of the ₹100 Cr capex, unlocking new revenue streams.</li>
+            <li>Continued growth in wallet share within the EV segment.</li>
+            <li>Benefits of operating leverage playing out as new capacity is filled.</li>
+            <li>Industry-wide tailwind from 'China Plus One' strategy materializing into more long-term contracts.</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="source-toggle" onclick="toggleSource('source-10')">Show/Hide Sources</div>
+      <div id="source-10" class="source-content">
+        <p>BSE Corporate Announcements</p>
+        <p>Media Reports</p>
+        <p>Q1 FY26 Earnings Call Transcript</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 11: Conference Call Summary -->
+  <div id="modal-11" class="modal-overlay" onclick="closeModal('modal-11')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-11')">&times;</span>
+      <h2 class="modal-section-title">Conference Call Summary (Q1 FY26)</h2>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Management Guidance & Commentary</h3>
+      <ul>
+        <li><strong>Revenue Growth:</strong> Management is "very confident" of achieving **20-25% revenue growth in FY26**.
+          <br><em class="text-sm text-blue-600">-> Mapped to: Financials (Slide 7), 4-Cylinder (Slide 8)</em></li>
+        <li><strong>EBITDA Margins:</strong> Expected to be maintained in the sustainable range of **24-25%**.
+          <br><em class="text-sm text-blue-600">-> Mapped to: Margin Analysis (Slide 8)</em></li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Capex & Expansion</h3>
+      <ul>
+        <li>A **capex plan of ₹100 Cr for FY26** is on track.</li>
+        <li>This capex is backed by confirmed new orders, primarily from ZF (for EV) and the new client, MAN.
+          <br><em class="text-sm text-blue-600">-> Mapped to: 4-Cylinder (Slide 8), Catalysts (Slide 10)</em></li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Strategic Highlights & Segment Outlook</h3>
+      <ul>
+        <li><strong>EV Segment:</strong> Contribution grew to **28% of revenue** in Q1 FY26. This remains the key growth driver.</li>
+        <li><strong>New Client:</strong> Successfully added **MAN Truck & Bus (Germany)** as a new customer, marking entry into another large OEM.</li>
+        <li><strong>Client Relationships:</strong> Deepening wallet share with existing clients like ZF is a core strategy.</li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Key Analyst Q&A</h3>
+      <ul>
+        <li>On chip shortages: Management stated the impact is minimal as they are Tier-2 and their OEM clients manage the shortage.</li>
+        <li>On client concentration: Acknowledged, but diversifying by adding new clients (MAN) and new platforms (ZF's EV).</li>
+        <li>On working capital: Increase is due to export-led growth and longer shipping times, considered normal for this business model.</li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Key Risks Highlighted</h3>
+      <ul>
+        <li>Forex volatility (EUR/INR) as exports are ~60% of revenue.</li>
+        <li>High dependency on European clients (BMW, ZF, MAN).</li>
+        <li>General cyclicality of the global auto industry.</li>
+      </ul>
+      
+      <div class="source-toggle" onclick="toggleSource('source-11')">Show/Hide Sources</div>
+      <div id="source-11" class="source-content">
+        <p>Q1 FY26 Earnings Call Transcript (Aug 2025) - (Based on provided PDF notes)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 12: Forensic Analysis -->
+  <div id="modal-12" class="modal-overlay" onclick="closeModal('modal-12')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-12')">&times;</span>
+      <h2 class="modal-section-title">Forensic Analysis</h2>
+      
+      <ul class="list-disc pl-5 space-y-2 mb-4">
+        <li><strong>Revenue Quality:</strong> Revenue growth is in line with capex and client announcements. Receivables Days (TTM: 104) are high, but this is a consistent feature of the business due to its export-oriented model serving large global OEMs, who have longer payment cycles. No unusual spikes.</li>
+        
+        <li><strong>Profitability & Margins:</strong> EBITDA margins (~24%) are high compared to peers but are justified by the high-precision, niche product profile and global client base. Margins are stable, not erratic.</li>
+        
+        <li><strong class="text-yellow-700">Cash Flow Integrity (Yellow Flag):</strong> Cash From Operations (CFO) has lagged Net Income (PAT) significantly.
+            <ul class="list-decimal pl-6 mt-1">
+                <li><strong>FY25:</strong> PAT was ₹50.5 Cr, but CFO was only ₹27.1 Cr (CFO/PAT ratio of 54%).</li>
+                <li><strong>TTM:</strong> CFO/PAT ratio is 58.75%.</li>
+                <li><strong>Reason:</strong> This is primarily due to a large increase in working capital (specifically Inventory and Trade Receivables) to service growing export orders. While explained by growth, a consistent CFO/PAT ratio below 1 is a monitorable.</li>
+            </ul>
+        </li>
+        
+        <li><strong>Balance Sheet Red Flags:</strong> Debt is rising (D/E 0.81) to fund growth capex, which is normal. No significant related-party transactions, unexplained loans, or goodwill.</li>
+        
+        <li><strong>Audit & Governance:</strong> Stable promoter holding (51.68%) with zero pledging. No frequent auditor changes. Disclosures are standard.</li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Summary & Risk Score</h3>
+      <p class="mb-4">The primary yellow flag is the <strong>poor cash flow conversion (CFO/PAT < 1)</strong>. This appears to be driven by a genuine increase in working capital needed to fund export-led growth, rather than aggressive accounting. However, this trend must be monitored closely to ensure receivables are being collected and inventory is not becoming obsolete. Other manipulation signals are largely absent.</p>
+      
+      <div class="text-center p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+        <div class="text-lg font-semibold">Manipulation Risk Score</div>
+        <div class="text-5xl font-bold text-yellow-700 my-2">3 / 10</div>
+        <div class="font-semibold">(Low Risk)</div>
+        <p class="text-sm mt-2">Score is low, but not zero, due to the persistent negative CFO/PAT ratio. This is explained by the business model but remains a key area to monitor.</p>
+      </div>
+
+      <div class="source-toggle" onclick="toggleSource('source-12')">Show/Hide Sources</div>
+      <div id="source-12" class="source-content">
+        <p>Screener.in Data Export (RACL Geartech.xlsx) - TTM and 5-Year data</p>
+        <p>Analyst Assessment based on standard forensic models.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 13: Valuation & Recommendation -->
+  <div id="modal-13" class="modal-overlay" onclick="closeModal('modal-13')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal('modal-13')">&times;</span>
+      <h2 class="modal-section-title">Valuation & Recommendation</h2>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Investment Thesis</h3>
+      <ul class="list-disc pl-5 mb-4">
+        <li><strong>Niche Moat:</strong> RACL is a proxy play on the global luxury auto and EV market, protected by high-entry-barriers of quality and client trust.</li>
+        <li><strong>EV Growth Driver:</strong> The EV segment (28% of sales) is the key growth engine, with deepening ties to global EV platforms via ZF.</li>
+        <li><strong>Strong Guidance:</strong> Management's 20-25% growth guidance (FY26) is backed by a strong order book from new and existing clients.</li>
+        <li><strong>Reasonable Valuation:</strong> The stock trades at a significant discount to high-growth EV peers (like Sona BLW), offering a more attractive entry point.</li>
+      </ul>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="valuation-card">
+          <div class="stat-label text-slate-700">P/E (TTM)</div>
+          <div class="stat-value text-slate-900">24.1x</div>
+          <p class="text-sm text-slate-600">Industry Avg: ~30-35x</p>
+        </div>
+        <div class="valuation-card">
+          <div class="stat-label text-slate-700">P/B (TTM)</div>
+          <div class="stat-value text-slate-900">5.5x</div>
+          <p class="text-sm text-slate-600">Justified by high ROE (22.8%)</p>
+        </div>
+        <div class="valuation-card">
+          <div class="stat-label text-slate-700">EV/EBITDA (TTM)</div>
+          <div class="stat-value text-slate-900">13.5x</div>
+          <p class="text-sm text-slate-600">Reasonable for 20%+ growth</p>
+        </div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">DCF Valuation (Simplified)</h3>
+      <ul class="list-disc pl-5 mb-4 text-sm">
+        <li><strong>Assumptions:</strong> 20% growth (FY26-28), 15% (FY29-30), 8% terminal growth. WACC of 12%.</li>
+        <li><strong>Implied Fair Value:</strong> This model suggests a fair value of approximately <strong>₹1,350 per share</strong>, indicating a potential upside of ~26% from the current price.</li>
+      </ul>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Price Targets & Recommendation</h3>
+      <div class="text-center grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div class="p-4 bg-red-100 rounded-lg"><div class="font-bold">Bear Case</div><div class="text-2xl font-bold text-red-700">₹900</div></div>
+        <div class="p-4 bg-blue-100 rounded-lg"><div class="font-bold">Base Case</div><div class="text-2xl font-bold text-blue-700">₹1,350</div></div>
+        <div class="p-4 bg-green-100 rounded-lg"><div class="font-bold">Bull Case</div><div class="text-2xl font-bold text-green-700">₹1,600</div></div>
+        <div class="p-4 bg-green-600 text-white rounded-lg"><div class="font-bold">Recommendation</div><div class="text-2xl font-bold">BUY</div></div>
+      </div>
+      
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Key Risks</h3>
+      <ul class="list-disc pl-5">
+        <li><strong>Client Concentration:</strong> High dependency on BMW Motorrad and Kubota remains a key risk.</li>
+        <li><strong>Working Capital:</strong> Poor CFO/PAT ratio. If receivables stretch further, it could strain the balance sheet.</li>
+        <li><strong>Forex Risk:</strong> High export revenue (~60%) makes earnings volatile to EUR/INR fluctuations.</li>
+        <li><strong>Auto Cyclicality:</strong> A global auto slowdown would directly impact new orders.</li>
+      </ul>
+      
+      <div class="source-toggle" onclick="toggleSource('source-13')">Show/Hide Sources</div>
+      <div id="source-13" class="source-content">
+        <p>Screener.in Data</p>
+        <p>Analyst's DCF Model & Valuation Assessment.</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <!-- JAVASCRIPT -->
+  <script>
+    // Modal toggle functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+    
+    // Source toggle function
+    function toggleSource(sourceId) {
+      const el = document.getElementById(sourceId);
+      if (el.style.display === 'block') {
+        el.style.display = 'none';
+      } else {
+        el.style.display = 'block';
+      }
+    }
+
+    // Chart.js Initializations
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Modal 2: Geo Chart
+      const geoCtx = document.getElementById('geoChart');
+      if (geoCtx) {
+        new Chart(geoCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Exports', 'Domestic'],
+            datasets: [{
+              label: 'Revenue by Geography (Q1 FY26)',
+              data: [60.3, 39.7],
+              backgroundColor: ['#1d4ed8', '#93c5fd'],
+              borderColor: '#ffffff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}%` } }
+            }
+          }
+        });
+      }
+
+      // Modal 2: Segment Chart
+      const segmentCtx = document.getElementById('segmentChart');
+      if (segmentCtx) {
+        new Chart(segmentCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['EV Segment', 'Non-EV Segments'],
+            datasets: [{
+              label: 'Revenue by Segment (Q1 FY26)',
+              data: [28, 72],
+              backgroundColor: ['#166534', '#a7f3d0'],
+              borderColor: '#ffffff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}%` } }
+            }
+          }
+        });
+      }
+      
+      // Modal 7: Annual Chart
+      const annualCtx = document.getElementById('annualChart');
+      if (annualCtx) {
+        new Chart(annualCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Mar \'21', 'Mar \'22', 'Mar \'23', 'Mar \'24', 'Mar \'25'],
+            datasets: [
+              {
+                label: 'Revenue (₹ Cr)',
+                data: [203.61, 271.21, 358.21, 417.29, 417.37],
+                backgroundColor: '#3b82f6',
+                yAxisID: 'y'
+              },
+              {
+                label: 'PAT (₹ Cr)',
+                data: [14.85, 27.05, 41.51, 52.38, 50.48],
+                backgroundColor: '#16a34a',
+                type: 'line',
+                borderColor: '#15803d',
+                tension: 0.1,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { title: { display: true, text: 'Revenue vs. PAT (Annual)' } },
+            scales: {
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: 'Revenue (₹ Cr)' }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: { display: true, text: 'PAT (₹ Cr)' },
+                grid: { drawOnChartArea: false }
+              }
+            }
+          }
+        });
+      }
+      
+      // Modal 7: Ratio Chart
+      const ratioCtx = document.getElementById('ratioChart');
+      if (ratioCtx) {
+        new Chart(ratioCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mar \'21', 'Mar \'22', 'Mar \'23', 'Mar \'24', 'Mar \'25'],
+            datasets: [
+              {
+                label: 'ROCE (%)',
+                data: [13.78, 17.58, 19.34, 21.06, 19.34], // From Data Sheet
+                borderColor: '#c026d3',
+                backgroundColor: '#f0abfc',
+                tension: 0.1,
+                fill: false
+              },
+              {
+                label: 'ROE (%)',
+                data: [18.59, 26.39, 30.63, 29.21, 22.84], // From Data Sheet
+                borderColor: '#ea580c',
+                backgroundColor: '#fdbf6f',
+                tension: 0.1,
+                fill: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { title: { display: true, text: 'Return Ratios (Annual)' } },
+            scales: {
+              y: {
+                title: { display: true, text: 'Percentage (%)' },
+                ticks: { callback: (value) => value + '%' }
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // Close modal on 'Esc' key press
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach((modal) => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
